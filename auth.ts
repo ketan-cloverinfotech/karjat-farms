@@ -43,13 +43,28 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user) {
         token.id = user.id as string;
         token.role = (user as { role?: string }).role ?? "USER";
+        token.email = user.email as string;
       }
       return token;
     },
-    session: ({ session, token }) => {
-      if (session.user) {
-        session.user.id = token.id as string;
-        (session.user as { role?: string }).role = token.role as string;
+    // Always re-resolve user from DB by email. Prevents stale cookies pointing
+    // at a user id that no longer exists (e.g. after re-seed or DB reset).
+    session: async ({ session, token }) => {
+      if (session.user && token.email) {
+        const dbUser = await prisma.user.findUnique({
+          where: { email: token.email as string },
+          select: { id: true, role: true, name: true },
+        });
+        if (dbUser) {
+          session.user.id = dbUser.id;
+          session.user.name = dbUser.name;
+          (session.user as { role?: string }).role = dbUser.role;
+        } else {
+          // User was deleted — fall back to JWT values so client can at least
+          // sign out cleanly instead of erroring.
+          session.user.id = token.id as string;
+          (session.user as { role?: string }).role = token.role as string;
+        }
       }
       return session;
     },
