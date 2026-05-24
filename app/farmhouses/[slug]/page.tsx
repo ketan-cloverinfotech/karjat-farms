@@ -70,8 +70,8 @@ export default async function FarmhouseDetail({
           <h1 className="text-3xl font-bold text-stone-900">{f.title}</h1>
           <p className="text-stone-500 mt-1">📍 {f.location}</p>
         </div>
-        {row.owner.phone && (
-          <WhatsAppButton phone={row.owner.phone} farmhouseTitle={f.title} label="WhatsApp host" />
+        {(row.contactPhone || row.owner.phone) && (
+          <WhatsAppButton phone={(row.contactPhone || row.owner.phone)} farmhouseTitle={f.title} label="WhatsApp host" />
         )}
       </div>
 
@@ -159,7 +159,7 @@ export default async function FarmhouseDetail({
           <BookingWidget
             farmhouseId={f.id}
             farmhouseTitle={f.title}
-            ownerPhone={row.owner.phone}
+            ownerPhone={(row.contactPhone || row.owner.phone)}
             rooms={roomsWithAvailability}
             blockedRanges={blockedRanges}
           />

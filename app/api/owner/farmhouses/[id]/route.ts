@@ -24,6 +24,7 @@ const schema = z.object({
   cancellationPolicy: z.string().max(200).optional().nullable(),
   directions: z.string().max(2000).optional().nullable(),
   mapsQuery: z.string().max(500).optional().nullable(),
+  contactPhone: z.string().max(40).optional().nullable(),
 });
 
 async function assertOwnership(id: string, userId: string) {
@@ -68,6 +69,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       cancellationPolicy: d.cancellationPolicy ?? undefined,
       directions: d.directions ?? undefined,
       mapsQuery: d.mapsQuery ?? undefined,
+      contactPhone: d.contactPhone ?? undefined,
     },
   });
   return NextResponse.json({ farmhouse: updated });

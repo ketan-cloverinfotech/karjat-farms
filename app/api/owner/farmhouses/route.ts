@@ -24,6 +24,7 @@ const schema = z.object({
   cancellationPolicy: z.string().max(200).optional().nullable(),
   directions: z.string().max(2000).optional().nullable(),
   mapsQuery: z.string().max(500).optional().nullable(),
+  contactPhone: z.string().max(40).optional().nullable(),
 });
 
 function slugify(s: string): string {
@@ -72,6 +73,7 @@ export async function POST(req: Request) {
       cancellationPolicy: data.cancellationPolicy ?? null,
       directions: data.directions ?? null,
       mapsQuery: data.mapsQuery ?? null,
+      contactPhone: data.contactPhone ?? null,
       slug,
       amenities: JSON.stringify(data.amenities),
       images: JSON.stringify(data.images),

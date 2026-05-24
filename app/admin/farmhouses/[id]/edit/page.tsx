@@ -38,6 +38,7 @@ export default async function EditFarmhousePage({
           cancellationPolicy: row.cancellationPolicy ?? "Moderate",
           directions: row.directions ?? "",
           mapsQuery: row.mapsQuery ?? "",
+          contactPhone: row.contactPhone ?? "",
         }}
       />
     </div>

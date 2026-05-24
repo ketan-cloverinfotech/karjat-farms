@@ -21,6 +21,7 @@ export type FarmhouseFormData = {
   cancellationPolicy: string;
   directions: string;
   mapsQuery: string;
+  contactPhone: string;
 };
 
 type Props = {
@@ -44,6 +45,7 @@ const defaults: FarmhouseFormData = {
   cancellationPolicy: "Moderate",
   directions: "",
   mapsQuery: "",
+  contactPhone: "",
 };
 
 export function FarmhouseForm({ initial, mode }: Props) {
@@ -192,6 +194,18 @@ export function FarmhouseForm({ initial, mode }: Props) {
       </Section>
 
       <Section title="Guest information" subtitle="Optional — shown on the booking page.">
+        <Field label="Contact phone (for WhatsApp / calls)">
+          <input
+            type="tel"
+            className="input"
+            placeholder="+91 98765 43210"
+            value={form.contactPhone}
+            onChange={(e) => setForm({ ...form, contactPhone: e.target.value })}
+          />
+          <p className="text-xs text-stone-500 mt-1">
+            Used by the &ldquo;Chat on WhatsApp&rdquo; button on the listing. Include country code. Leave blank to fall back to your account phone.
+          </p>
+        </Field>
         <div className="grid grid-cols-2 gap-4">
           <Field label="Check-in time">
             <input

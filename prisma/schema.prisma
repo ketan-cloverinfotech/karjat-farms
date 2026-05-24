@@ -50,6 +50,7 @@ model Farmhouse {
   cancellationPolicy String?
   directions         String?
   mapsQuery          String?
+  contactPhone       String?
   ownerId            String
   createdAt          DateTime @default(now())
 
