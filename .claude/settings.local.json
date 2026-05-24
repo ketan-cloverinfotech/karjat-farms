@@ -3,7 +3,19 @@
     "allow": [
       "Bash(dir D:\\\\karjat-farm)",
       "Bash(npm --version)",
-      "Bash(npx --yes create-next-app@latest . --typescript --tailwind --app --no-src-dir --import-alias \"@/*\" --eslint --use-npm --turbopack)"
+      "Bash(npx --yes create-next-app@latest . --typescript --tailwind --app --no-src-dir --import-alias \"@/*\" --eslint --use-npm --turbopack)",
+      "Bash(npm install *)",
+      "Bash(npx prisma *)",
+      "Bash(npx tsx *)",
+      "Bash(node -e \"console.log\\(Object.keys\\(require\\('@prisma/adapter-better-sqlite3'\\)\\)\\)\")",
+      "Bash(npm run *)",
+      "Read(//c/Users/ketan/AppData/Local/Temp/claude/D--karjat-farm/c6ffd772-da01-46e7-a605-64fb7f2b49bb/tasks/**)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(taskkill /PID 21228 /F)",
+      "PowerShell(Stop-Process -Id 21228 -Force -ErrorAction SilentlyContinue)",
+      "PowerShell(\"done\")",
+      "Bash(grep -i \"error\\\\|exception\\\\|fail\" /c/Users/ketan/.claude/projects/D--karjat-farm/c6ffd772-da01-46e7-a605-64fb7f2b49bb/tool-results/b8pnsfzht.txt 2>&1 | tail -40)",
+      "Bash(taskkill /PID 1896 /F)"
     ]
   }
 }

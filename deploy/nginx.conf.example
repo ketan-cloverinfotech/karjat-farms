@@ -1,0 +1,47 @@
+# /etc/nginx/sites-available/karjat-farms
+# Symlink to sites-enabled and reload nginx after editing.
+#
+# Replace YOUR_SERVER_IP with your server's public IP (or your domain when you have one).
+
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name YOUR_SERVER_IP _;
+
+    # Max upload size (matches our 5 MB cap on photo uploads, plus headroom)
+    client_max_body_size 10M;
+
+    # Gzip text responses
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+    gzip_min_length 1024;
+
+    # Forward everything to the Next.js app on 127.0.0.1:3000
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        proxy_read_timeout 60s;
+    }
+
+    # Cache Next.js static assets aggressively
+    location /_next/static/ {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_cache_bypass $http_upgrade;
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # Cache user-uploaded photos
+    location /uploads/ {
+        proxy_pass http://127.0.0.1:3000;
+        expires 30d;
+        add_header Cache-Control "public";
+    }
+}

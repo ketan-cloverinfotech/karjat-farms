@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum Role {
+  USER
+  OWNER
+  ADMIN
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  phone     String?
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+
+  farmhouses Farmhouse[] @relation("OwnerFarmhouses")
+  bookings   Booking[]
+}
+
+model Farmhouse {
+  id                 String   @id @default(cuid())
+  title              String
+  slug               String   @unique
+  description        String
+  location           String
+  pricePerNight      Int
+  maxGuests          Int
+  bedrooms           Int
+  bathrooms          Int
+  amenities          String
+  images             String
+  houseRules         String?
+  checkInTime        String?
+  checkOutTime       String?
+  cancellationPolicy String?
+  directions         String?
+  mapsQuery          String?
+  ownerId            String
+  createdAt          DateTime @default(now())
+
+  owner        User          @relation("OwnerFarmhouses", fields: [ownerId], references: [id], onDelete: Cascade)
+  bookings     Booking[]
+  blockedDates BlockedDate[]
+  rooms        Room[]
+
+  @@index([location])
+}
+
+model Room {
+  id            String   @id @default(cuid())
+  farmhouseId   String
+  name          String
+  description   String?
+  capacity      Int
+  pricePerNight Int
+  displayOrder  Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  farmhouse Farmhouse     @relation(fields: [farmhouseId], references: [id], onDelete: Cascade)
+  bookings  BookingRoom[]
+
+  @@index([farmhouseId])
+}
+
+model BookingRoom {
+  bookingId String
+  roomId    String
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  room    Room    @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@id([bookingId, roomId])
+  @@index([roomId])
+}
+
+model BlockedDate {
+  id          String   @id @default(cuid())
+  farmhouseId String
+  startDate   DateTime
+  endDate     DateTime
+  reason      String?
+  createdAt   DateTime @default(now())
+
+  farmhouse Farmhouse @relation(fields: [farmhouseId], references: [id], onDelete: Cascade)
+
+  @@index([farmhouseId, startDate, endDate])
+}
+
+model Booking {
+  id                String        @id @default(cuid())
+  userId            String
+  farmhouseId       String
+  checkIn           DateTime
+  checkOut          DateTime
+  guests            Int
+  totalAmount       Int
+  status            BookingStatus @default(PENDING)
+  razorpayOrderId   String?
+  razorpayPaymentId String?
+  createdAt         DateTime      @default(now())
+
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  farmhouse Farmhouse     @relation(fields: [farmhouseId], references: [id], onDelete: Cascade)
+  rooms     BookingRoom[]
+
+  @@index([farmhouseId, checkIn, checkOut])
+  @@index([userId])
+}

@@ -1,36 +1,107 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Karjat Farms
 
-## Getting Started
+A farmhouse booking application for Karjat — browse, search, and book farmhouses with date-based availability, secure auth, Razorpay payments, and an owner admin panel.
 
-First, run the development server:
+Built with **Next.js 16 (App Router)**, **TypeScript**, **Tailwind CSS v4**, **Prisma + SQLite**, **NextAuth v5**, and **Razorpay**.
+
+## Features
+
+- 🏠 Browse and search 7 seeded Karjat farmhouses (filters: location, guests, price)
+- 📅 Date-range picker with real-time availability checks (no double-bookings)
+- 🔐 Email + password auth with roles (USER / OWNER)
+- 💳 Razorpay checkout for booking payment (falls back to instant confirmation if keys aren't configured — handy for local dev)
+- 👤 "My Bookings" page with cancel support
+- 🛠 Owner dashboard: stats, manage listings (CRUD), view all bookings
+
+## Quick start
 
 ```bash
+# 1. Install
+npm install
+
+# 2. Apply DB migrations
+npx prisma migrate dev
+
+# 3. Seed demo data
+npx tsx prisma/seed.ts
+
+# 4. Run dev server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+App will be available at [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Demo accounts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Role  | Email                    | Password   |
+| ----- | ------------------------ | ---------- |
+| User  | `user@example.com`       | `user123`  |
+| Owner | `owner@karjatfarms.in`   | `owner123` |
 
-## Learn More
+## Environment
 
-To learn more about Next.js, take a look at the following resources:
+Copy `.env` and fill in real values:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```env
+DATABASE_URL="file:./dev.db"
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# NextAuth — generate with: openssl rand -base64 32
+AUTH_SECRET="..."
+AUTH_TRUST_HOST="true"
+NEXTAUTH_URL="http://localhost:3000"
 
-## Deploy on Vercel
+# Razorpay test keys from https://dashboard.razorpay.com/
+RAZORPAY_KEY_ID="rzp_test_..."
+RAZORPAY_KEY_SECRET="..."
+NEXT_PUBLIC_RAZORPAY_KEY_ID="rzp_test_..."
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+> If Razorpay keys are left as placeholders, bookings still work — they're auto-confirmed without payment. Useful for local testing.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Routes
+
+| Path                                  | Purpose                                  |
+| ------------------------------------- | ---------------------------------------- |
+| `/`                                   | Landing page with featured properties    |
+| `/farmhouses`                         | Listing with filters                     |
+| `/farmhouses/[slug]`                  | Detail page + booking widget             |
+| `/login`, `/signup`                   | Auth                                     |
+| `/bookings`                           | User's bookings                          |
+| `/admin`                              | Owner overview (stats, recent bookings)  |
+| `/admin/farmhouses`                   | Owner's listings (with edit/delete)      |
+| `/admin/farmhouses/new`               | Create a farmhouse                       |
+| `/admin/farmhouses/[id]/edit`         | Edit a farmhouse                         |
+| `/admin/bookings`                     | All bookings on owner's properties       |
+
+## API routes
+
+- `POST /api/auth/signup` — create account
+- `POST /api/bookings` — create booking + Razorpay order
+- `DELETE /api/bookings/[id]` — cancel a booking
+- `POST /api/payment/verify` — verify Razorpay signature & confirm booking
+- `POST /api/owner/farmhouses` — create farmhouse (owner only)
+- `PATCH /api/owner/farmhouses/[id]` — update farmhouse
+- `DELETE /api/owner/farmhouses/[id]` — delete farmhouse
+
+## Tech stack
+
+- **Frontend:** Next.js 16 App Router, React 19, Tailwind v4, `react-day-picker`
+- **Backend:** Next.js Route Handlers, Prisma 7 with `@prisma/adapter-better-sqlite3`
+- **Auth:** NextAuth v5 (Credentials provider, JWT sessions)
+- **Payments:** Razorpay SDK + HMAC SHA-256 signature verification
+- **Validation:** Zod
+
+## Schema
+
+- `User` — id, name, email, password (hashed), phone, role
+- `Farmhouse` — title, slug, description, location, pricePerNight, maxGuests, bedrooms, bathrooms, amenities (JSON), images (JSON), ownerId
+- `Booking` — userId, farmhouseId, checkIn, checkOut, guests, totalAmount, status (PENDING/CONFIRMED/CANCELLED), razorpayOrderId, razorpayPaymentId
+
+## Scripts
+
+```bash
+npm run dev      # dev server with Turbopack
+npm run build    # production build
+npm run start    # production server
+npx prisma studio  # browse the local DB
+```
